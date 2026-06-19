@@ -1,40 +1,44 @@
 (function() {
+    // 1. Block ALL Native Popups
     window.open = function() { return null; };
     window.alert = function() { return false; };
-    document.addEventListener('click', function(e) {
-        var el = e.target;
-        var isLink = false;
-        while(el && el.tagName) {
-            if(el.tagName.toLowerCase() === 'a') { isLink = true; break; }
-            el = el.parentElement;
-        }
-        if(isLink || !e.isTrusted || window.getComputedStyle(e.target).zIndex > 9999) {
-            e.stopPropagation(); e.preventDefault(); return false;
-        }
-    }, true);
+    window.confirm = function() { return true; }; // <-- Kills the "Please confirm" popup!
+    window.prompt = function() { return null; };
 
+    // 2. Prevent the page from redirecting itself to an ad site
+    window.addEventListener('beforeunload', function (e) { e.preventDefault(); e.returnValue = ''; });
+
+    // 3. Aggressively Hunt & Destroy Invisible Ad Overlays
     var nukeAds = function() {
         var ads = document.querySelectorAll('a[target="_blank"], a[href*="http"], div[class*="ad-"], div[id*="ad-"], iframe[src*="about:blank"]');
         for (var i = 0; i < ads.length; i++) { ads[i].remove(); }
-        var els = document.querySelectorAll('div, iframe');
+
+        var els = document.querySelectorAll('div, iframe, a');
         for(var j=0; j<els.length; j++) {
-            var z = window.getComputedStyle(els[j]).zIndex;
-            if(z !== 'auto' && parseInt(z) > 999) {
+            var style = window.getComputedStyle(els[j]);
+            var z = style.zIndex;
+            var pos = style.position;
+            
+            // If a box is floating over the video (high z-index or fixed position), kill it.
+            if((z !== 'auto' && parseInt(z) > 99) || pos === 'fixed' || pos === 'absolute') {
                 var c = els[j].className || '';
-                if(!c.includes('jw-') && !c.includes('plyr') && !c.includes('vjs')) {
+                var id = els[j].id || '';
+                // Exclude the actual video player buttons (jwplayer, plyr, videojs)
+                if(!c.includes('jw-') && !c.includes('plyr') && !c.includes('vjs') && !c.includes('video') && !id.includes('player')) {
                     els[j].style.display = 'none !important';
                     els[j].style.pointerEvents = 'none !important';
                     els[j].style.width = '0px';
                     els[j].style.height = '0px';
+                    els[j].style.opacity = '0';
                 }
             }
         }
     };
 
     nukeAds(); 
-    setInterval(nukeAds, 400);
-    window.addEventListener('beforeunload', function (e) { e.preventDefault(); e.returnValue = ''; });
-    
+    setInterval(nukeAds, 400); // Scans the page every 400ms for new ads
+
+    // 4. Trigger auto-unmute
     var checkPlayer = setInterval(function() {
         var v = document.querySelector('video');
         if (v) {
