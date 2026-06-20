@@ -31,15 +31,7 @@
     s.innerHTML = 'div[class*="reward"], div[id*="reward"], .rewardzone, #rewardzone, [class*="chest"], iframe[src*="about:blank"], a[target="_blank"] { display: none !important; pointer-events: none !important; } .clickjacker, div[style*="z-index: 2147483647"], div[style*="z-index: 9999"] { pointer-events: none !important; display: none !important; }';
     if(document.head) document.head.appendChild(s);
 
-    // 4. Auto-Fullscreen on First Tap
-    var isFsTapped = false;
-    function triggerFs() {
-        if (isFsTapped || document.fullscreenElement) return;
-        var fsBtn = document.querySelector('.jw-icon-fullscreen, .plyr__controls__item[data-plyr="fullscreen"], .vjs-fullscreen-control, .art-control-fullscreen, [title="Fullscreen"], [aria-label="Fullscreen"]');
-        if (fsBtn) { isFsTapped = true; try { fsBtn.click(); } catch(err) {} }
-    }
-
-    // 5. Ultimate 300+ Word Ad Killer Loop
+    // 4. Ultimate 300+ Word Ad Killer Loop
     var adRegex = /shopee|lazada|gcash|paymaya|grabpay|zalora|carousell|tokopedia|alibaba|aliexpress|temu|shein|tiktok shop|11\.11|12\.12|payday sale|flash sale|mega sale|super sale|free shipping|cash on delivery|cod only|piso deal|1 peso|voucher code|promo code|casino|jackpot|spin|win|sale|reward|bonus|claim|price|bet|deals|voucher|register|download|discount|promo|crypto|invest|trading|lotto|lucky|draw|sweepstakes|millionaire|bitcoin|ethereum|forex|jili|slot|baccarat|roulette|poker|sabong|scatter|color game|tongits|pusoy|pesowin|phbet|jilipark|jilbet|okbet|virus|malware|infected|cleaner|boost memory|battery damaged|critical alert|system warning|action required|pending message|package waiting|delivery failed|track shipment|claim prize|you have been chosen|survey|chance to win|extra income|work from home|fast cash|easy money|rich fast|double your money|meet|singles|girls|women|chat|flirt|hookup|webcam|cam|live|sex|porn|nude|naked|xxx|adult|18\+|mature|nsfw|viagra|pills|enhancement|enlargement|weight loss|diet|fat|muscle|fitness|health|cure|miracle|secret|revealed|install|app|apk|game|play now|click here|continue|proceed|verify|robot|captcha|allow|notification|winner|selected|congratulations|exclusive|limited time|offer|special|free|trial|subscribe|membership|trick|hack|cheat|generator|coins|gems|diamonds|robux|vbucks|fortnite|minecraft|roblox|gta|free fire|pubg|mobile legends|call of duty|codm|mlbb|genshin|impact|valorant|steam|psn|xbox|nintendo|gift card|code|redeem|paypal|amazon|google play|itunes|netflix|spotify|hulu|disney|premium|vip|pro|plus|unlimited|unlocked|cracked|mod|menu|god mode|wallhack|aimbot|esp|big sale time|great deals|best prices/i;
 
     function killAds() {
@@ -68,9 +60,8 @@
     var observer = new MutationObserver(function(mutations) { mutations.forEach(function(m) { killAds(); }); });
     if(document.body) observer.observe(document.body, { childList: true, subtree: true });
 
-    // 6. Hijack Clicks to prevent popups and trigger FS
+    // 5. Hijack Clicks to prevent popups (NO AUTO FULLSCREEN)
     document.addEventListener('click', function(e) {
-        triggerFs();
         var t = e.target;
         if (t.tagName === 'A' || t.closest('a')) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
         if (!t.closest('.jwplayer') && !t.closest('.plyr') && !t.closest('video') && !t.closest('.vjs') && !t.closest('.artplayer-app')) {
@@ -79,7 +70,6 @@
     }, true);
 
     document.addEventListener('touchstart', function(e) {
-        triggerFs();
         var t = e.target;
         if (t.tagName === 'A' || t.closest('a') || t.tagName === 'IFRAME') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
     }, {passive: false, capture: true});
